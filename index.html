@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>Certificai — Certificação Profissional</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B1B1D; --paper:#FAF9F7; --surface:#FFFFFF; --line:#E6E3DD; --muted:#6B6863;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Work Sans",system-ui,sans-serif;line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  header{padding:64px 0 40px;text-align:center}
+  h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.8rem,4vw,2.6rem);margin:0 0 12px;letter-spacing:-.01em}
+  p.lead{color:var(--muted);max-width:520px;margin:0 auto;font-size:1.05rem}
+  .grid{display:grid;gap:20px;padding:16px 0 72px}
+  @media(min-width:720px){.grid{grid-template-columns:repeat(3,1fr)}}
+  a.card{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px;transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease}
+  a.card:hover{border-color:#93273F;transform:translateY(-2px);box-shadow:0 14px 30px -20px rgba(27,27,29,.25)}
+  .eyebrow{text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;font-weight:600;color:var(--muted)}
+  .card h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:1.25rem;margin:0}
+  .card p{color:var(--muted);font-size:.92rem;margin:0}
+  footer{text-align:center;padding:32px 0;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Certificação profissional para quem faz na prática</h1>
+      <p class="lead">Escolha sua área, faça a prova de 10 perguntas e receba seu certificado digital na hora.</p>
+    </header>
+    <div class="grid">
+      <a class="card" href="/beleza">
+        <span class="eyebrow">Certificação</span>
+        <h2>Beleza &amp; Estética</h2>
+        <p>Cabeleireiro, Barbeiro, Manicure, Maquiador(a), Sobrancelhas, Lash Designer</p>
+      </a>
+      <a class="card" href="/gastronomia">
+        <span class="eyebrow">Certificação</span>
+        <h2>Gastronomia</h2>
+        <p>Confeiteiro(a), Chef / Cozinheiro(a), Pizzaiolo(a)</p>
+      </a>
+      <a class="card" href="/imagem">
+        <span class="eyebrow">Certificação</span>
+        <h2>Imagem &amp; Mídia</h2>
+        <p>Fotógrafo(a), Videomaker</p>
+      </a>
+    </div>
+    <footer>© 2026 Certificai</footer>
+  </div>
+</body>
+</html>
