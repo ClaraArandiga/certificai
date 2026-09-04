@@ -248,8 +248,14 @@ function renderHome(){
       </div>
       <div style="margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:10px">
         <button class="btn btn-primary" data-action="go" data-hash="form">Quero o pacote agora →</button>
-        <span class="muted mono" style="font-size:.8rem">${fmt(CONFIG.price.base)} · emissão imediata</span>
       </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="narrow">
+      ${bonusSectionHTML()}
+      ${reviewsSectionHTML()}
     </div>
   </section>
 
@@ -267,13 +273,6 @@ function renderHome(){
           <div class="included-meta">Prova de 10 perguntas · certificado digital</div>
         </div>`).join('')}
       </div>
-    </div>
-  </section>
-
-  <section class="section" style="padding-top:0">
-    <div class="narrow">
-      ${bonusSectionHTML()}
-      ${reviewsSectionHTML()}
     </div>
   </section>
 
