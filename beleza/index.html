@@ -43,7 +43,12 @@ input,select{width:100%;font:inherit;padding:14px 16px;border-radius:12px;border
 input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
 .field{margin-bottom:16px}
-.topbar{position:sticky;top:0;z-index:20;background:#FFFFFF;border-bottom:1px solid var(--line)}
+.site-top{position:sticky;top:0;z-index:30}
+.promo-banner{background:var(--accent);color:var(--accent-ink);text-align:center;font-size:.7rem;font-weight:700;letter-spacing:.03em;padding:7px 12px}
+.topbar{background:#FFFFFF;border-bottom:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.consent-row{margin-top:16px}
+.consent-row a{color:var(--accent);text-decoration:underline}
 .topbar-inner{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
 .brand{font-family:"Fraunces",serif;font-weight:600;font-size:1.15rem}
 .brand-logo{height:38px;width:auto;display:block}
@@ -204,7 +209,7 @@ CONFIG.brand = 'Certifica Beleza';
 const LEAD_WEBHOOK_URL = ''; // opcional: cole aqui a URL de um webhook (Google Sheets / Make / Zapier) para receber os leads automaticamente
 const STORAGE_KEY = 'funil_' + CONFIG.slug + '_v1';
 const app = document.getElementById('app');
-let ui = { bumpChecked:false, secondId:null, downsellSecondId:null };
+let ui = { bumpChecked:false, secondId:null, downsellSecondId:null, consentChecked:false };
 
 function fmt(n){ return 'R$' + n.toFixed(2).replace('.', ','); }
 function defaultState(){ return { lead:{nome:'',telefone:'',email:''}, mainId:null, secondId:null, tier:null, certs:[], quiz:{certIdx:0,qIdx:0,answers:{},results:{},attempts:{}} }; }
@@ -266,10 +271,13 @@ function certPreviewHTML(){
 }
 
 function topbar(activeStep){
-  return `<div class="topbar"><div class="topbar-inner">
-    <img class="brand-logo" src="${LOGO_IMAGE}" alt="${CONFIG.brand}">
-    ${activeStep ? `<div class="chip mono">Ambiente seguro</div>` : `<div class="chip">${CONFIG.groupLabel}</div>`}
-  </div></div>`;
+  return `<div class="site-top">
+    <div class="promo-banner">LINK EXCLUSIVO: PROMOÇÃO VÁLIDA SOMENTE ATÉ VOCÊ FECHAR ESSA PÁGINA</div>
+    <div class="topbar"><div class="topbar-inner">
+      <img class="brand-logo" src="${LOGO_IMAGE}" alt="${CONFIG.brand}">
+      ${activeStep ? `<div class="chip mono">Ambiente seguro</div>` : `<div class="chip">${CONFIG.groupLabel}</div>`}
+    </div></div>
+  </div>`;
 }
 function stepPills(activeStep){
   const steps = [['form','1. Dados'],['checkout','2. Pagamento'],['quiz','3. Prova'],['result','4. Certificado']];
@@ -455,7 +463,11 @@ function renderCheckout(){
         </div>
         <div class="total-row"><span>Total</span><span class="mono">${fmt(total)}</span></div>
         <div style="margin-top:24px">${reviewsSectionHTML()}</div>
-        <button class="btn btn-primary btn-block" id="finalize-btn" style="margin-top:22px">Finalizar compra — Pagamento seguro via Mercado Pago</button>
+        <label class="opt consent-row" style="border:none;padding:0;cursor:pointer">
+          <input type="checkbox" id="consent-check" ${ui.consentChecked?'checked':''}>
+          <span style="font-size:.85rem">Li e aceito os <a href="/privacidade" target="_blank">Termos e a Política de Privacidade</a>.</span>
+        </label>
+        <button class="btn btn-primary btn-block" id="finalize-btn" style="margin-top:14px" ${ui.consentChecked?'':'disabled'}>Finalizar compra — Pagamento seguro via Mercado Pago</button>
         <p class="muted" style="text-align:center;font-size:.78rem;margin-top:10px">Você será redirecionado ao ambiente oficial do Mercado Pago para concluir o pagamento.</p>
       </div>
     </div>
@@ -464,7 +476,12 @@ function renderCheckout(){
   bc.addEventListener('change', e=>{ ui.bumpChecked = e.target.checked; if(ui.bumpChecked && !ui.secondId){ ui.secondId = others[0].id; } render(); });
   const sp = document.getElementById('second-prof');
   if(sp) sp.addEventListener('change', e=>{ ui.secondId = e.target.value; });
+  document.getElementById('consent-check').addEventListener('change', e=>{
+    ui.consentChecked = e.target.checked;
+    document.getElementById('finalize-btn').disabled = !ui.consentChecked;
+  });
   document.getElementById('finalize-btn').addEventListener('click', ()=>{
+    if(!ui.consentChecked) return;
     if(ui.bumpChecked){
       if(!ui.secondId){ alert('Selecione o segundo certificado.'); return; }
       state.secondId = ui.secondId; state.tier = 'bump'; state.certs = [state.mainId, state.secondId];
