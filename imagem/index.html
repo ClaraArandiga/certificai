@@ -171,6 +171,7 @@ function profById(id){ return CONFIG.professions.find(p=>p.id===id); }
 function go(hash){ location.hash = hash; }
 function code(str){ let h=0; for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) >>> 0; } return h.toString(16).toUpperCase().padStart(8,'0'); }
 
+const AREAS = ['Social Media','Fotografia','Marketing Digital','Design Gráfico','Beleza e Estética','Barbearia','Gastronomia','Confeitaria','Moda','Educação','Saúde e Bem-estar','Vendas','Copywriting','Videomaker / Audiovisual','Arquitetura e Decoração','Imobiliário','Tecnologia / TI','Administração','Empreendedorismo / Negócio próprio','Outra área'];
 const BONUS_ITEMS = [
   { name: 'Apostila digital completa (PDF)', price: 49.90 },
   { name: 'Matrícula', price: 24.78 },
@@ -234,15 +235,6 @@ function stepPills(activeStep){
 
 function render(){
   let hash = location.hash.slice(1) || 'home';
-  if(hash.startsWith('pago-')){
-    const tier = hash.slice(5);
-    state.tier = tier;
-    state.certs = tier==='base' ? [state.mainId] : [state.mainId, state.secondId].filter(Boolean);
-    state.quiz = {certIdx:0,qIdx:0,answers:{},results:{},attempts:{}};
-    saveState();
-    go('quiz');
-    return;
-  }
   if(hash==='form') renderForm();
   else if(hash==='checkout') renderCheckout();
   else if(hash==='downsell') renderDownsell();
@@ -363,6 +355,7 @@ function renderForm(){
           <div class="field"><label for="nome">Nome completo</label><input id="nome" name="nome" required value="${state.lead.nome}" placeholder="Como deve aparecer no certificado"></div>
           <div class="field"><label for="telefone">WhatsApp</label><input id="telefone" name="telefone" required value="${state.lead.telefone}" placeholder="(00) 00000-0000"></div>
           <div class="field"><label for="email">E-mail</label><input id="email" type="email" name="email" required value="${state.lead.email}" placeholder="voce@email.com"></div>
+          <div class="field"><label for="area">Em qual área você trabalha?</label><select id="area" name="area" required><option value="" disabled ${!state.lead.area?'selected':''}>Selecione...</option>${AREAS.map(a=>`<option value="${a}" ${state.lead.area===a?'selected':''}>${a}</option>`).join('')}</select></div>
           <div class="field"><label for="profissao">Qual certificado você quer?</label><select id="profissao" name="profissao" required>${opts}</select></div>
           <button class="btn btn-primary btn-block" type="submit">Continuar para pagamento →</button>
         </form>
@@ -372,7 +365,7 @@ function renderForm(){
   document.getElementById('lead-form').addEventListener('submit', e=>{
     e.preventDefault();
     const f = new FormData(e.target);
-    state.lead = { nome:f.get('nome').trim(), telefone:f.get('telefone').trim(), email:f.get('email').trim() };
+    state.lead = { nome:f.get('nome').trim(), telefone:f.get('telefone').trim(), email:f.get('email').trim(), area:f.get('area') };
     state.mainId = f.get('profissao');
     saveState();
     if(LEAD_WEBHOOK_URL){
@@ -490,19 +483,74 @@ function renderReturn(){
       <div class="card" style="padding:36px">
         <div class="eyebrow">Pagamento</div>
         <h2 class="display" style="font-size:1.4rem;margin:14px 0 10px">Finalize o pagamento no Mercado Pago</h2>
-        <p class="muted">Abrimos o Mercado Pago em outra aba. Depois de concluir o pagamento, volte para cá e clique no botão abaixo para começar sua prova.</p>
+        <p class="muted">Abrimos o Mercado Pago em outra aba. Assim que o pagamento for aprovado, o Mercado Pago traz você de volta automaticamente e liberamos sua prova.</p>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
           <a class="btn btn-ghost btn-block" href="${link}" target="_blank" rel="noopener">Não abriu? Clique aqui para pagar</a>
-          <button class="btn btn-primary btn-block" id="paid-btn">Já paguei, continuar para a prova →</button>
+          <button class="btn btn-ghost btn-block" id="recheck-btn">Já paguei e não voltei automaticamente</button>
         </div>
       </div>
     </div>
   </section>`;
-  document.getElementById('paid-btn').addEventListener('click', ()=>{
-    state.quiz = {certIdx:0,qIdx:0,answers:{},results:{},attempts:{}};
-    saveState();
-    go('quiz');
-  });
+  document.getElementById('recheck-btn').addEventListener('click', ()=> location.reload());
+}
+
+function applyVerifiedTier(tier){
+  state.tier = tier;
+  state.certs = tier==='base' ? [state.mainId] : [state.mainId, state.secondId].filter(Boolean);
+  state.quiz = {certIdx:0,qIdx:0,answers:{},results:{},attempts:{}};
+  saveState();
+}
+function renderVerifying(){
+  app.innerHTML = `
+  ${topbar('checkout')}
+  <section class="section" style="padding-top:60px">
+    <div class="narrow" style="text-align:center">
+      <div class="card" style="padding:36px">
+        <div class="eyebrow">Pagamento</div>
+        <h2 class="display" style="font-size:1.4rem;margin:14px 0 10px">Confirmando seu pagamento...</h2>
+        <p class="muted">Isso leva só alguns segundos. Não feche esta página.</p>
+      </div>
+    </div>
+  </section>`;
+}
+function renderVerifyFailed(){
+  app.innerHTML = `
+  ${topbar('checkout')}
+  <section class="section" style="padding-top:60px">
+    <div class="narrow" style="text-align:center">
+      <div class="card" style="padding:36px">
+        <div class="eyebrow">Pagamento</div>
+        <h2 class="display" style="font-size:1.4rem;margin:14px 0 10px">Não conseguimos confirmar seu pagamento</h2>
+        <p class="muted">Se você já concluiu o pagamento no Mercado Pago, aguarde alguns segundos — a confirmação pode levar um instante — e tente novamente.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
+          <button class="btn btn-primary btn-block" id="retry-verify-btn">Tentar novamente</button>
+          <a class="btn btn-ghost btn-block" href="${location.pathname}">Voltar ao início</a>
+        </div>
+      </div>
+    </div>
+  </section>`;
+  document.getElementById('retry-verify-btn').addEventListener('click', checkPaymentReturn);
+}
+async function checkPaymentReturn(){
+  const params = new URLSearchParams(location.search);
+  const paymentId = params.get('payment_id');
+  if(!paymentId) return false;
+  renderVerifying();
+  try{
+    const res = await fetch(`/api/verify-payment?payment_id=${encodeURIComponent(paymentId)}&slug=${encodeURIComponent(CONFIG.slug)}`);
+    const data = await res.json();
+    if(data.ok){
+      const tier = data.external_reference.slice(CONFIG.slug.length+1);
+      applyVerifiedTier(tier);
+      history.replaceState(null, '', location.pathname);
+      go('quiz');
+    } else {
+      renderVerifyFailed();
+    }
+  }catch(err){
+    renderVerifyFailed();
+  }
+  return true;
 }
 
 function renderQuiz(){
@@ -708,6 +756,10 @@ function bindActions(){
 }
 
 window.addEventListener('hashchange', render);
-document.addEventListener('DOMContentLoaded', render);
-render();
+async function init(){
+  const handled = await checkPaymentReturn();
+  if(!handled) render();
+}
+document.addEventListener('DOMContentLoaded', init);
+init();
 </script>
