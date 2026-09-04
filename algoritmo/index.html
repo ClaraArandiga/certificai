@@ -117,6 +117,7 @@ const CONFIG = {
   brand: 'O Mestre do Algorítimo',
   groupLabel: 'Conteúdo & Criação Digital',
   heroKicker: 'Pacote completo · Apostila + 3 certificados',
+  heroHook: 'Você já imaginou receber um certificado em minutos?',
   heroHeadline: 'PACOTE: O MESTRE DO ALGORÍTIMO',
   heroSub: 'Domine o que faz conteúdo performar: leve pra casa a apostila completa e saia certificado(a) em Social Media, Fotografia e Copywriting — tudo em um único pacote, por um preço só.',
   price: { base: 47 },
@@ -283,8 +284,9 @@ function renderHome(){
   ${topbar(null)}
   <section class="section" style="padding-top:56px">
     <div class="narrow" style="text-align:center">
+      <h1 class="display" style="font-size:clamp(1.6rem,4.2vw,2.3rem);margin:0 0 14px">${CONFIG.heroHook}</h1>
       <div class="eyebrow">${CONFIG.heroKicker}</div>
-      <h1 class="display" style="font-size:clamp(1.7rem,4.6vw,2.6rem);margin:14px 0 8px">${CONFIG.heroHeadline}</h1>
+      <h2 class="display" style="font-size:clamp(1.4rem,3.6vw,2rem);margin:14px 0 8px">${CONFIG.heroHeadline}</h2>
       <div class="highlight-row">
         <span class="highlight-box">Apostila <strong>Grátis</strong></span>
         <span class="highlight-box">3 certificados <strong>inclusos</strong></span>
