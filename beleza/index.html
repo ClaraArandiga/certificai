@@ -241,7 +241,7 @@ function urgencyBannerHTML(){
 }
 function bonusSectionHTML(){
   return `<div class="bonus-box">
-    <div class="eyebrow" style="margin-bottom:10px">Bônus inclusos</div>
+    <div class="eyebrow" style="margin-bottom:10px;font-size:1.15rem;font-weight:800">VOCÊ VAI GANHAR</div>
     ${BONUS_ITEMS.map(b=>`<div class="bonus-item"><span class="bonus-name">${b.name}</span><span class="bonus-price"><s>${fmt(b.price)}</s> <strong>Grátis</strong></span></div>`).join('')}
   </div>`;
 }
@@ -267,8 +267,7 @@ function certPreviewHTML(){
     <div class="cert-lock-badge">
       <svg viewBox="0 0 24 24" width="26" height="26"><rect x="5" y="11" width="14" height="10" rx="2" fill="#fff"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#fff" stroke-width="2" fill="none"/></svg>
     </div>
-  </div>
-  <button class="btn btn-primary btn-block" data-action="go" data-hash="form" style="max-width:480px;margin:16px auto 0">Desbloqueie seu certificado já →</button>`;
+  </div>`;
 }
 
 function topbar(activeStep){
