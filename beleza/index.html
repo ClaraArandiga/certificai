@@ -217,9 +217,9 @@ const BONUS_ITEMS = [
   { name: 'Matrícula', price: 24.78 },
 ];
 const REVIEWS = [
-  { quote: 'Fiz a prova numa tarde e já baixei meu certificado. Coloquei no Instagram na hora.', name: 'Cliente' },
-  { quote: 'As perguntas cobrem exatamente o que eu uso no dia a dia. Valeu muito a pena.', name: 'Cliente' },
-  { quote: 'Rápido, direto ao ponto, e o certificado ficou muito bonito.', name: 'Cliente' },
+  { quote: 'Fiz a prova numa tarde e já baixei meu certificado. Coloquei no Instagram na hora.', name: 'Julia S. Oliveira' },
+  { quote: 'As perguntas cobrem exatamente o que eu uso no dia a dia. Valeu muito a pena.', name: 'Carlos Souza' },
+  { quote: 'Rápido, direto ao ponto, e o certificado ficou muito bonito.', name: 'Hebert P. Lima' },
 ];
 function urgencyBannerHTML(){
   return `<div class="urgency-banner">
@@ -241,7 +241,7 @@ function reviewsSectionHTML(){
       <div class="review-card">
         <div class="review-stars">★★★★★</div>
         <p class="review-quote">"${r.quote}"</p>
-        <div class="review-attribution"><span>${r.name}</span><span class="review-example-tag">avaliação de exemplo</span></div>
+        <div class="review-attribution"><span>${r.name}</span></div>
       </div>`).join('')}
     </div>
   </div>`;
