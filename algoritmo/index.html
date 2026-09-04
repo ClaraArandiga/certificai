@@ -18,7 +18,7 @@
 }
 :root[data-theme="dark"]{
   --ink:#F5E9E8; --paper:#1A1212; --surface:#231818; --surface-2:#2B1C1C;
-  --accent:#F0555F; --accent-ink:#1A1212; --line:#3A2626;
+  --accent:#FF4646; --accent-ink:#1A1212; --line:#3A2626;
   --muted:#B99E9C; --good:#7ED18F; --bad:#F0918C; --star:#E3B563; --shadow:0 14px 30px -20px rgba(0,0,0,.55);
 }
 *{box-sizing:border-box}
@@ -154,6 +154,14 @@ const CONFIG = {
         {q:'O que é um bom CTA (chamada para ação)?',o:['Um texto vago sem direcionamento','Sempre em letras maiúsculas','Uma instrução clara e direta sobre o que a pessoa deve fazer em seguida','Um botão sem texto'],c:2},
       ]},
   ],
+  upsell: {
+    id: 'triade-digital',
+    label: 'Tríade Digital',
+    cert: 'TRÍADE DIGITAL: EXPERT NA INTEGRAÇÃO DAS ÁREAS DE SOCIAL MEDIA, COPYWRITING E FOTOGRAFIA',
+    noQuiz: true,
+    priceAdd: 17,
+  },
+  linkBump: 'https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=357265628-e007108b-2d21-454c-b7da-f01002d84fbd',
 };
 </script>
 <script>
@@ -170,7 +178,8 @@ function defaultState(){ return { lead:{nome:'',telefone:'',email:''}, certs: CO
 function loadState(){ try{ const s = JSON.parse(localStorage.getItem(STORAGE_KEY)); return s || defaultState(); }catch(e){ return defaultState(); } }
 function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 let state = loadState();
-function profById(id){ return CONFIG.professions.find(p=>p.id===id); }
+function profById(id){ return CONFIG.professions.find(p=>p.id===id) || (CONFIG.upsell && CONFIG.upsell.id===id ? CONFIG.upsell : null); }
+let ui = { bumpChecked: false };
 function go(hash){ location.hash = hash; }
 function code(str){ let h=0; for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) >>> 0; } return h.toString(16).toUpperCase().padStart(8,'0'); }
 
@@ -234,9 +243,10 @@ function stepPills(activeStep){
 
 function render(){
   let hash = location.hash.slice(1) || 'home';
-  if(hash==='pago-base'){
-    state.tier = 'base';
-    state.certs = CONFIG.professions.map(p=>p.id);
+  if(hash==='pago-base' || hash==='pago-bump'){
+    const tier = hash.slice(5);
+    state.tier = tier;
+    state.certs = tier==='bump' ? [...CONFIG.professions.map(p=>p.id), CONFIG.upsell.id] : CONFIG.professions.map(p=>p.id);
     state.quiz = {certIdx:0,qIdx:0,answers:{},results:{},attempts:{}};
     saveState();
     go('quiz');
@@ -358,6 +368,7 @@ function renderForm(){
 }
 
 function renderCheckout(){
+  const total = CONFIG.price.base + (ui.bumpChecked ? CONFIG.upsell.priceAdd : 0);
   app.innerHTML = `
   ${topbar('checkout')}
   <section class="section" style="padding-top:44px">
@@ -368,23 +379,34 @@ function renderCheckout(){
         ${urgencyBannerHTML()}
         ${bonusSectionHTML()}
         <div class="price-row"><span>Pacote completo (${CONFIG.professions.map(p=>p.label).join(', ')})</span><span class="mono">${fmt(CONFIG.price.base)}</span></div>
-        <div class="total-row"><span>Total</span><span class="mono">${fmt(CONFIG.price.base)}</span></div>
+        <div class="hr"></div>
+        <div class="bump">
+          <div class="bump-badge">Oferta mais escolhida</div>
+          <label class="opt ${ui.bumpChecked?'selected':''}" style="border:none;padding:0;cursor:pointer">
+            <input type="checkbox" id="bump-check" ${ui.bumpChecked?'checked':''}>
+            <span><strong>Material Secreto para se tornar um Expert</strong> + um 4º certificado — por apenas +${fmt(CONFIG.upsell.priceAdd)}</span>
+          </label>
+        </div>
+        <div class="total-row"><span>Total</span><span class="mono">${fmt(total)}</span></div>
         <div style="margin-top:24px">${reviewsSectionHTML()}</div>
         <button class="btn btn-primary btn-block" id="finalize-btn" style="margin-top:22px">Finalizar compra — Pagamento seguro via Mercado Pago</button>
         <p class="muted" style="text-align:center;font-size:.78rem;margin-top:10px">Você será redirecionado ao ambiente oficial do Mercado Pago para concluir o pagamento.</p>
       </div>
     </div>
   </section>`;
+  const bc = document.getElementById('bump-check');
+  bc.addEventListener('change', e=>{ ui.bumpChecked = e.target.checked; render(); });
   document.getElementById('finalize-btn').addEventListener('click', ()=>{
-    state.tier = 'base';
-    state.certs = CONFIG.professions.map(p=>p.id);
+    state.tier = ui.bumpChecked ? 'bump' : 'base';
+    state.certs = ui.bumpChecked ? [...CONFIG.professions.map(p=>p.id), CONFIG.upsell.id] : CONFIG.professions.map(p=>p.id);
     saveState();
-    window.open(CONFIG.link, '_blank');
+    window.open(ui.bumpChecked ? CONFIG.linkBump : CONFIG.link, '_blank');
     go('return');
   });
 }
 
 function renderReturn(){
+  const link = state.tier==='bump' ? CONFIG.linkBump : CONFIG.link;
   app.innerHTML = `
   ${topbar('checkout')}
   <section class="section" style="padding-top:60px">
@@ -394,7 +416,7 @@ function renderReturn(){
         <h2 class="display" style="font-size:1.3rem;margin:14px 0 10px">Finalize o pagamento no Mercado Pago</h2>
         <p class="muted">Abrimos o Mercado Pago em outra aba. Depois de concluir o pagamento, volte para cá e clique no botão abaixo para começar suas provas.</p>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
-          <a class="btn btn-ghost btn-block" href="${CONFIG.link}" target="_blank" rel="noopener">Não abriu? Clique aqui para pagar</a>
+          <a class="btn btn-ghost btn-block" href="${link}" target="_blank" rel="noopener">Não abriu? Clique aqui para pagar</a>
           <button class="btn btn-primary btn-block" id="paid-btn">Já paguei, continuar para as provas →</button>
         </div>
       </div>
@@ -412,6 +434,13 @@ function renderQuiz(){
   if(state.quiz.certIdx >= certs.length){ go('result'); return; }
   const certId = certs[state.quiz.certIdx];
   const prof = profById(certId);
+  if(prof.noQuiz){
+    state.quiz.results[certId] = { score: null, passed: true };
+    state.quiz.certIdx += 1;
+    saveState();
+    if(state.quiz.certIdx >= certs.length){ go('result'); } else { renderQuiz(); }
+    return;
+  }
   const qList = prof.quiz;
   const qIdx = state.quiz.qIdx;
   const question = qList[qIdx];
@@ -484,7 +513,7 @@ function renderResult(){
       <div class="card" style="padding:28px;margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <h3 style="margin:0;font-size:1.05rem">${prof.cert}</h3>
-          <span class="badge-good">Aprovado — ${res.score}/10</span>
+          <span class="badge-good">${res.score===null ? 'Certificado incluso' : `Aprovado — ${res.score}/10`}</span>
         </div>
         <canvas class="cert-canvas" id="cert-${certId}"></canvas>
         <p class="muted mono" style="text-align:center;font-size:.72rem;margin-top:10px">Código de verificação ${vcode}</p>
@@ -566,6 +595,22 @@ function renderResult(){
   });
 }
 
+function wrapCanvasText(ctx, text, maxWidth){
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+  words.forEach(w=>{
+    const test = current ? current + ' ' + w : w;
+    if(ctx.measureText(test).width > maxWidth && current){
+      lines.push(current);
+      current = w;
+    } else {
+      current = test;
+    }
+  });
+  if(current) lines.push(current);
+  return lines;
+}
 async function drawCertificate(certId){
   const prof = profById(certId);
   const canvas = document.getElementById('cert-'+certId);
@@ -584,8 +629,14 @@ async function drawCertificate(certId){
     ctx.fillStyle = '#16223A';
     ctx.font = `italic 600 ${Math.round(H*0.062)}px "Cormorant Garamond", Georgia, serif`;
     ctx.fillText(state.lead.nome || 'Seu Nome Aqui', W*0.5, H*0.470);
-    ctx.font = `600 ${Math.round(H*0.038)}px "Cormorant Garamond", Georgia, serif`;
-    ctx.fillText((prof.cert || '').toUpperCase(), W*0.5, H*0.636);
+    const courseText = (prof.cert || '').toUpperCase();
+    const isLong = courseText.length > 40;
+    const courseSize = H * (isLong ? 0.028 : 0.038);
+    ctx.font = `600 ${Math.round(courseSize)}px "Cormorant Garamond", Georgia, serif`;
+    const courseLines = wrapCanvasText(ctx, courseText, W*0.72);
+    const lineH = courseSize * 1.18;
+    const startY = H*0.636 - (lineH*(courseLines.length-1))/2;
+    courseLines.forEach((line,i)=> ctx.fillText(line, W*0.5, startY + i*lineH));
     ctx.font = `500 ${Math.round(H*0.032)}px "Cormorant Garamond", Georgia, serif`;
     ctx.fillText(dateStr, W*0.5, H*0.763);
   };
