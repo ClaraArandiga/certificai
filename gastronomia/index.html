@@ -87,7 +87,9 @@ label{font-size:.85rem;font-weight:700;display:block;margin-bottom:6px}
 .faq p{margin:10px 0 0;color:var(--muted)}
 .price-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
 .total-row{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:1.2rem;border-top:1.5px solid var(--line);padding-top:14px;margin-top:8px}
-.bump{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:18px;background:var(--surface-2)}
+.bump{border:2px solid var(--accent);border-radius:10px;padding:20px;background:color-mix(in srgb, var(--accent) 9%, var(--surface));box-shadow:var(--shadow)}
+.bump-badge{display:inline-block;background:var(--accent);color:var(--accent-ink);font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:5px 12px;border-radius:8px;margin-bottom:12px}
+.bump .opt span{font-size:1.02rem}
 .pill-steps{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
 .pill-steps span{font-size:.75rem;padding:5px 12px;border-radius:8px;border:1px solid var(--line);color:var(--muted)}
 .pill-steps span.active{border-color:var(--accent);color:var(--accent);font-weight:700}
@@ -329,7 +331,7 @@ function renderHome(){
       <button class="btn btn-primary" data-action="go" data-hash="form">Quero meu certificado agora →</button>
     </div>
   </section>
-  <footer>© ${new Date().getFullYear()} ${CONFIG.brand} · Certificação de ${CONFIG.groupLabel}</footer>
+  <footer>© ${new Date().getFullYear()} ${CONFIG.brand} · Certificação de ${CONFIG.groupLabel} · <a href="/privacidade" style="color:inherit">Privacidade e Termos</a></footer>
   `;
 }
 
@@ -382,9 +384,10 @@ function renderCheckout(){
         <div class="price-row"><span>Certificado de ${main.label}</span><span class="mono">${fmt(CONFIG.price.base)}</span></div>
         <div class="hr"></div>
         <div class="bump">
+          <div class="bump-badge">Oferta mais escolhida</div>
           <label class="opt ${ui.bumpChecked?'selected':''}" style="border:none;padding:0;cursor:pointer">
             <input type="checkbox" id="bump-check" ${ui.bumpChecked?'checked':''}>
-            <span><strong>Oferta adicional:</strong> Material completo em PDF + um 2º certificado de outra especialidade — por apenas +${fmt(CONFIG.price.bumpAdd)}</span>
+            <span><strong>Material Secreto para se tornar um Expert</strong> + um 2º certificado de outra especialidade — por apenas +${fmt(CONFIG.price.bumpAdd)}</span>
           </label>
           ${ui.bumpChecked ? `
           <div class="field" style="margin-top:14px">
@@ -592,7 +595,7 @@ function renderResult(){
       <p class="muted" style="text-align:center;font-size:.85rem">Guarde este link — seus certificados ficam salvos neste navegador.</p>
     </div>
   </section>
-  <footer>© ${new Date().getFullYear()} ${CONFIG.brand} · Certificação de ${CONFIG.groupLabel}</footer>
+  <footer>© ${new Date().getFullYear()} ${CONFIG.brand} · Certificação de ${CONFIG.groupLabel} · <a href="/privacidade" style="color:inherit">Privacidade e Termos</a></footer>
   `;
   app.querySelectorAll('[data-retry]').forEach(btn=>{
     btn.addEventListener('click', ()=>{

@@ -5,21 +5,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#15161A; --paper:#F6F5F2; --surface:#FFFFFF; --surface-2:#ECEAFB;
-  --accent:#5B4FE0; --accent-ink:#FFFFFF; --line:#E2E0E8;
-  --muted:#68656E; --good:#3F7A4E; --bad:#B23B3B; --star:#B8862E; --shadow:0 14px 30px -20px rgba(21,22,26,.25);
+  --ink:#1A1414; --paper:#FAF6F5; --surface:#FFFFFF; --surface-2:#FBEAE9;
+  --accent:#D4212F; --accent-ink:#FFFFFF; --line:#EDDBD9;
+  --muted:#726461; --good:#3F7A4E; --bad:#B23B3B; --star:#B8862E; --shadow:0 14px 30px -20px rgba(26,20,20,.25);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ink:#EDEBF5; --paper:#141318; --surface:#1C1A22; --surface-2:#221F2B;
-    --accent:#8B80F5; --accent-ink:#141318; --line:#2E2A38;
-    --muted:#A39FAE; --good:#7ED18F; --bad:#F0918C; --star:#E3B563; --shadow:0 14px 30px -20px rgba(0,0,0,.55);
+    --ink:#F5E9E8; --paper:#1A1212; --surface:#231818; --surface-2:#2B1C1C;
+    --accent:#F0555F; --accent-ink:#1A1212; --line:#3A2626;
+    --muted:#B99E9C; --good:#7ED18F; --bad:#F0918C; --star:#E3B563; --shadow:0 14px 30px -20px rgba(0,0,0,.55);
   }
 }
 :root[data-theme="dark"]{
-  --ink:#EDEBF5; --paper:#141318; --surface:#1C1A22; --surface-2:#221F2B;
-  --accent:#8B80F5; --accent-ink:#141318; --line:#2E2A38;
-  --muted:#A39FAE; --good:#7ED18F; --bad:#F0918C; --star:#E3B563; --shadow:0 14px 30px -20px rgba(0,0,0,.55);
+  --ink:#F5E9E8; --paper:#1A1212; --surface:#231818; --surface-2:#2B1C1C;
+  --accent:#F0555F; --accent-ink:#1A1212; --line:#3A2626;
+  --muted:#B99E9C; --good:#7ED18F; --bad:#F0918C; --star:#E3B563; --shadow:0 14px 30px -20px rgba(0,0,0,.55);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:"Manrope",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -91,6 +91,9 @@ footer{padding:40px 0;text-align:center;color:var(--muted);font-size:.85rem}
 .included-num{color:var(--accent);font-weight:700;font-size:.75rem;font-family:"JetBrains Mono",monospace}
 .included-name{font-family:"Unbounded",sans-serif;font-weight:600;font-size:1.05rem;margin:8px 0 4px}
 .included-meta{color:var(--muted);font-size:.85rem}
+.highlight-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:22px 0 6px}
+.highlight-box{background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.85rem;padding:11px 18px;border-radius:10px;box-shadow:var(--shadow)}
+.highlight-box strong{text-decoration:underline;text-underline-offset:2px}
 </style>
 
 <div id="app"></div>
@@ -237,8 +240,12 @@ function renderHome(){
   <section class="section" style="padding-top:56px">
     <div class="narrow" style="text-align:center">
       <div class="eyebrow">${CONFIG.heroKicker}</div>
-      <h1 class="display" style="font-size:clamp(1.7rem,4.6vw,2.6rem);margin:14px 0 18px">${CONFIG.heroHeadline}</h1>
-      <p class="muted" style="font-size:1.08rem">${CONFIG.heroSub}</p>
+      <h1 class="display" style="font-size:clamp(1.7rem,4.6vw,2.6rem);margin:14px 0 8px">${CONFIG.heroHeadline}</h1>
+      <div class="highlight-row">
+        <span class="highlight-box">Apostila <strong>Grátis</strong></span>
+        <span class="highlight-box">3 certificados <strong>inclusos</strong></span>
+        <span class="highlight-box">Matrícula <strong>Grátis</strong></span>
+      </div>
       <div style="margin-top:30px;display:flex;flex-direction:column;align-items:center;gap:10px">
         <button class="btn btn-primary" data-action="go" data-hash="form">Quero o pacote agora →</button>
         <span class="muted mono" style="font-size:.8rem">${fmt(CONFIG.price.base)} · emissão imediata</span>
@@ -298,7 +305,7 @@ function renderHome(){
       <button class="btn btn-primary" data-action="go" data-hash="form">Quero o pacote agora →</button>
     </div>
   </section>
-  <footer>© ${new Date().getFullYear()} ${CONFIG.brand}</footer>
+  <footer>© ${new Date().getFullYear()} ${CONFIG.brand} · <a href="/privacidade" style="color:inherit">Privacidade e Termos</a></footer>
   `;
 }
 
@@ -491,7 +498,7 @@ function renderResult(){
       <p class="muted" style="text-align:center;font-size:.85rem">Guarde este link — seus certificados ficam salvos neste navegador.</p>
     </div>
   </section>
-  <footer>© ${new Date().getFullYear()} ${CONFIG.brand}</footer>
+  <footer>© ${new Date().getFullYear()} ${CONFIG.brand} · <a href="/privacidade" style="color:inherit">Privacidade e Termos</a></footer>
   `;
   app.querySelectorAll('[data-retry]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
