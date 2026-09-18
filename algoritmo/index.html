@@ -121,7 +121,6 @@ const CONFIG = {
   heroHeadline: 'PACOTE: O MESTRE DO ALGORÍTIMO',
   heroSub: 'Domine o que faz conteúdo performar: leve pra casa a apostila completa e saia certificado(a) em Social Media, Fotografia e Copywriting — tudo em um único pacote, por um preço só.',
   price: { base: 47 },
-  link: 'https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=357265628-84fb57f6-8539-4af6-a897-cd4642618495',
   professions: [
     { id:'social-media', label:'Social Media', cert:'Social Media Profissional',
       quiz:[
@@ -170,7 +169,6 @@ const CONFIG = {
     noQuiz: true,
     priceAdd: 17,
   },
-  linkBump: 'https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=357265628-e007108b-2d21-454c-b7da-f01002d84fbd',
 };
 </script>
 <script>
@@ -326,7 +324,7 @@ function renderHome(){
     <div class="wrap">
       <h2 class="display" style="text-align:center;font-size:1.6rem;margin-bottom:36px">Como funciona</h2>
       <div class="grid grid-3">
-        ${['Preencha seus dados','Pague uma vez só, com segurança pelo Mercado Pago','Faça as 3 provas e desbloqueie apostila + certificados'].map((t,i)=>`
+        ${['Preencha seus dados','Pague uma vez só, com segurança','Faça as 3 provas e desbloqueie apostila + certificados'].map((t,i)=>`
         <div>
           <div class="mono" style="font-size:.75rem;color:var(--accent);font-weight:700">PASSO ${i+1}</div>
           <p style="margin:6px 0 0;font-weight:500">${t}</p>
@@ -341,7 +339,7 @@ function renderHome(){
       <details><summary>Os certificados têm validade legal? <span>+</span></summary><p>São certificados digitais de proficiência profissional, que atestam seu conhecimento técnico na área. Amplamente aceitos como comprovação de qualificação para currículo, portfólio e redes sociais.</p></details>
       <details><summary>E se eu não passar em alguma prova? <span>+</span></summary><p>Sem problema: você pode refazer cada prova até mais 2 vezes (3 tentativas no total), sem custo adicional, até atingir os 70% de acerto.</p></details>
       <details><summary>Preciso fazer as 3 provas de uma vez? <span>+</span></summary><p>Não. Você faz uma de cada vez, no seu ritmo — seu progresso fica salvo neste navegador.</p></details>
-      <details><summary>O pagamento é seguro? <span>+</span></summary><p>Sim. Todo o pagamento é processado pelo Mercado Pago, uma das maiores plataformas de pagamento do Brasil.</p></details>
+      <details><summary>O pagamento é seguro? <span>+</span></summary><p>Sim. Todo o pagamento é processado pela Stripe, uma das maiores plataformas de pagamento do mundo, com criptografia de ponta a ponta.</p></details>
     </div>
   </section>
 
@@ -411,8 +409,8 @@ function renderCheckout(){
           <input type="checkbox" id="consent-check" ${ui.consentChecked?'checked':''}>
           <span style="font-size:.85rem">Li e aceito os <a href="/privacidade" target="_blank">Termos e a Política de Privacidade</a>.</span>
         </label>
-        <button class="btn btn-primary btn-block" id="finalize-btn" style="margin-top:14px" ${ui.consentChecked?'':'disabled'}>Finalizar compra — Pagamento seguro via Mercado Pago</button>
-        <p class="muted" style="text-align:center;font-size:.78rem;margin-top:10px">Você será redirecionado ao ambiente oficial do Mercado Pago para concluir o pagamento.</p>
+        <button class="btn btn-primary btn-block" id="finalize-btn" style="margin-top:14px" ${ui.consentChecked?'':'disabled'}>Finalizar compra — Pagamento seguro</button>
+        <p class="muted" style="text-align:center;font-size:.78rem;margin-top:10px">Você será redirecionado ao ambiente oficial de pagamento (Stripe) para concluir a compra.</p>
       </div>
     </div>
   </section>`;
@@ -422,28 +420,43 @@ function renderCheckout(){
     ui.consentChecked = e.target.checked;
     document.getElementById('finalize-btn').disabled = !ui.consentChecked;
   });
-  document.getElementById('finalize-btn').addEventListener('click', ()=>{
+  document.getElementById('finalize-btn').addEventListener('click', async ()=>{
     if(!ui.consentChecked) return;
     state.tier = ui.bumpChecked ? 'bump' : 'base';
     state.certs = ui.bumpChecked ? [...CONFIG.professions.map(p=>p.id), CONFIG.upsell.id] : CONFIG.professions.map(p=>p.id);
     saveState();
-    window.open(ui.bumpChecked ? CONFIG.linkBump : CONFIG.link, '_blank');
-    go('return');
+    await goToPayment(state.tier);
   });
 }
 
+async function goToPayment(tier){
+  go('return');
+  try{
+    const res = await fetch(`/api/create-checkout?slug=${encodeURIComponent(CONFIG.slug)}&tier=${encodeURIComponent(tier)}`, { method:'POST' });
+    const data = await res.json();
+    if(!data.url) throw new Error('no_url');
+    state.checkoutUrl = data.url;
+    saveState();
+    render();
+    window.open(data.url, '_blank');
+  }catch(err){
+    alert('Não foi possível iniciar o pagamento agora. Tente novamente.');
+    go('checkout');
+  }
+}
+
 function renderReturn(){
-  const link = state.tier==='bump' ? CONFIG.linkBump : CONFIG.link;
+  const link = state.checkoutUrl;
   app.innerHTML = `
   ${topbar('checkout')}
   <section class="section" style="padding-top:60px">
     <div class="narrow" style="text-align:center">
       <div class="card" style="padding:36px">
         <div class="eyebrow">Pagamento</div>
-        <h2 class="display" style="font-size:1.3rem;margin:14px 0 10px">Finalize o pagamento no Mercado Pago</h2>
-        <p class="muted">Abrimos o Mercado Pago em outra aba. Assim que o pagamento for aprovado, o Mercado Pago traz você de volta automaticamente e liberamos seu material e suas provas.</p>
+        <h2 class="display" style="font-size:1.3rem;margin:14px 0 10px">${link ? 'Finalize o pagamento' : 'Preparando seu pagamento...'}</h2>
+        <p class="muted">${link ? 'Abrimos o pagamento em outra aba. Assim que for aprovado, você volta automaticamente e liberamos seu material e suas provas.' : 'Só um instante.'}</p>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
-          <a class="btn btn-ghost btn-block" href="${link}" target="_blank" rel="noopener">Não abriu? Clique aqui para pagar</a>
+          ${link ? `<a class="btn btn-ghost btn-block" href="${link}" target="_blank" rel="noopener">Não abriu? Clique aqui para pagar</a>` : ''}
           <button class="btn btn-ghost btn-block" id="recheck-btn">Já paguei e não voltei automaticamente</button>
         </div>
       </div>
@@ -479,7 +492,7 @@ function renderVerifyFailed(){
       <div class="card" style="padding:36px">
         <div class="eyebrow">Pagamento</div>
         <h2 class="display" style="font-size:1.3rem;margin:14px 0 10px">Não conseguimos confirmar seu pagamento</h2>
-        <p class="muted">Se você já concluiu o pagamento no Mercado Pago, aguarde alguns segundos — a confirmação pode levar um instante — e tente novamente.</p>
+        <p class="muted">Se você já concluiu o pagamento, aguarde alguns segundos — a confirmação pode levar um instante — e tente novamente.</p>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
           <button class="btn btn-primary btn-block" id="retry-verify-btn">Tentar novamente</button>
           <a class="btn btn-ghost btn-block" href="${location.pathname}">Voltar ao início</a>
@@ -491,15 +504,14 @@ function renderVerifyFailed(){
 }
 async function checkPaymentReturn(){
   const params = new URLSearchParams(location.search);
-  const paymentId = params.get('payment_id');
-  if(!paymentId) return false;
+  const sessionId = params.get('session_id');
+  if(!sessionId) return false;
   renderVerifying();
   try{
-    const res = await fetch(`/api/verify-payment?payment_id=${encodeURIComponent(paymentId)}&slug=${encodeURIComponent(CONFIG.slug)}`);
+    const res = await fetch(`/api/verify-stripe?session_id=${encodeURIComponent(sessionId)}&slug=${encodeURIComponent(CONFIG.slug)}`);
     const data = await res.json();
     if(data.ok){
-      const tier = data.external_reference.slice(CONFIG.slug.length+1);
-      applyVerifiedTier(tier);
+      applyVerifiedTier(data.tier);
       history.replaceState(null, '', location.pathname);
       go('download');
     } else {

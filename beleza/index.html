@@ -116,11 +116,6 @@ const CONFIG = {
   heroHeadline: 'Transforme sua habilidade em um certificado que abre portas.',
   heroSub: 'Prove que você domina a sua profissão. Faça a prova online, acerte pelo menos 70% e receba na hora o seu certificado profissional digital — pronto para usar no Instagram, no currículo e no salão.',
   price: { base: 17, bumpAdd: 27, downsellAdd: 7 },
-  links: {
-    base: 'https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=357265628-f303e86a-6a41-4c19-bb24-7e382b3db6aa',
-    bump: 'https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=357265628-0a515a9b-bda0-445d-9945-24dc276a4eec',
-    downsell: 'https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=357265628-0b959070-85db-42ac-9c43-68ea81aaa8f1'
-  },
   professions: [
     { id:'cabeleireiro', label:'Cabeleireiro(a)', icon:'✂️', cert:'Cabeleireiro(a) Profissional',
       quiz:[
@@ -346,7 +341,7 @@ function renderHome(){
     <div class="wrap">
       <h2 class="display" style="text-align:center;font-size:1.8rem;margin-bottom:36px">Como funciona</h2>
       <div class="grid grid-3">
-        ${['Escolha sua profissão e preencha seus dados','Faça o pagamento seguro pelo Mercado Pago','Responda a prova de 10 perguntas e acerte 70%+'].map((t,i)=>`
+        ${['Escolha sua profissão e preencha seus dados','Faça o pagamento seguro com cartão','Responda a prova de 10 perguntas e acerte 70%+'].map((t,i)=>`
         <div>
           <div class="mono" style="font-size:.75rem;color:var(--accent);font-weight:700">PASSO ${i+1}</div>
           <p style="margin:6px 0 0;font-weight:500">${t}</p>
@@ -379,7 +374,7 @@ function renderHome(){
       <details><summary>O certificado tem validade legal? <span>+</span></summary><p>É um certificado digital de proficiência profissional, que atesta seu conhecimento técnico na área. Ele é amplamente aceito como comprovação de qualificação para currículo, portfólio e redes sociais.</p></details>
       <details><summary>E se eu não passar na prova? <span>+</span></summary><p>Sem problema: você pode refazer a prova até mais 2 vezes (3 tentativas no total), sem custo adicional, até atingir os 70% de acerto.</p></details>
       <details><summary>Como eu recebo meu certificado? <span>+</span></summary><p>Assim que você acerta pelo menos 7 das 10 perguntas, o certificado é gerado automaticamente e liberado para download na hora.</p></details>
-      <details><summary>O pagamento é seguro? <span>+</span></summary><p>Sim. Todo o pagamento é processado pelo Mercado Pago, uma das maiores plataformas de pagamento do Brasil.</p></details>
+      <details><summary>O pagamento é seguro? <span>+</span></summary><p>Sim. Todo o pagamento é processado pela Stripe, uma das maiores plataformas de pagamento do mundo, com criptografia de ponta a ponta.</p></details>
     </div>
   </section>
 
@@ -459,8 +454,8 @@ function renderCheckout(){
           <input type="checkbox" id="consent-check" ${ui.consentChecked?'checked':''}>
           <span style="font-size:.85rem">Li e aceito os <a href="/privacidade" target="_blank">Termos e a Política de Privacidade</a>.</span>
         </label>
-        <button class="btn btn-primary btn-block" id="finalize-btn" style="margin-top:14px" ${ui.consentChecked?'':'disabled'}>Finalizar compra — Pagamento seguro via Mercado Pago</button>
-        <p class="muted" style="text-align:center;font-size:.78rem;margin-top:10px">Você será redirecionado ao ambiente oficial do Mercado Pago para concluir o pagamento.</p>
+        <button class="btn btn-primary btn-block" id="finalize-btn" style="margin-top:14px" ${ui.consentChecked?'':'disabled'}>Finalizar compra — Pagamento seguro</button>
+        <p class="muted" style="text-align:center;font-size:.78rem;margin-top:10px">Você será redirecionado ao ambiente oficial de pagamento (Stripe) para concluir a compra.</p>
       </div>
     </div>
   </section>`;
@@ -472,14 +467,13 @@ function renderCheckout(){
     ui.consentChecked = e.target.checked;
     document.getElementById('finalize-btn').disabled = !ui.consentChecked;
   });
-  document.getElementById('finalize-btn').addEventListener('click', ()=>{
+  document.getElementById('finalize-btn').addEventListener('click', async ()=>{
     if(!ui.consentChecked) return;
     if(ui.bumpChecked){
       if(!ui.secondId){ alert('Selecione o segundo certificado.'); return; }
       state.secondId = ui.secondId; state.tier = 'bump'; state.certs = [state.mainId, state.secondId];
       saveState();
-      window.open(CONFIG.links.bump, '_blank');
-      go('return');
+      await goToPayment('bump');
     } else {
       go('downsell');
     }
@@ -511,32 +505,46 @@ function renderDownsell(){
     </div>
   </section>`;
   document.getElementById('downsell-prof').addEventListener('change', e=>{ ui.downsellSecondId = e.target.value; });
-  document.getElementById('downsell-yes').addEventListener('click', ()=>{
+  document.getElementById('downsell-yes').addEventListener('click', async ()=>{
     state.secondId = ui.downsellSecondId; state.tier = 'downsell'; state.certs = [state.mainId, state.secondId];
     saveState();
-    window.open(CONFIG.links.downsell, '_blank');
-    go('return');
+    await goToPayment('downsell');
   });
-  document.getElementById('downsell-no').addEventListener('click', ()=>{
+  document.getElementById('downsell-no').addEventListener('click', async ()=>{
     state.tier = 'base'; state.certs = [state.mainId];
     saveState();
-    window.open(CONFIG.links.base, '_blank');
-    go('return');
+    await goToPayment('base');
   });
 }
 
+async function goToPayment(tier){
+  go('return');
+  try{
+    const res = await fetch(`/api/create-checkout?slug=${encodeURIComponent(CONFIG.slug)}&tier=${encodeURIComponent(tier)}`, { method:'POST' });
+    const data = await res.json();
+    if(!data.url) throw new Error('no_url');
+    state.checkoutUrl = data.url;
+    saveState();
+    render();
+    window.open(data.url, '_blank');
+  }catch(err){
+    alert('Não foi possível iniciar o pagamento agora. Tente novamente.');
+    go('checkout');
+  }
+}
+
 function renderReturn(){
-  const link = state.tier==='bump' ? CONFIG.links.bump : state.tier==='downsell' ? CONFIG.links.downsell : CONFIG.links.base;
+  const link = state.checkoutUrl;
   app.innerHTML = `
   ${topbar('checkout')}
   <section class="section" style="padding-top:60px">
     <div class="narrow" style="text-align:center">
       <div class="card" style="padding:36px">
         <div class="eyebrow">Pagamento</div>
-        <h2 class="display" style="font-size:1.4rem;margin:14px 0 10px">Finalize o pagamento no Mercado Pago</h2>
-        <p class="muted">Abrimos o Mercado Pago em outra aba. Assim que o pagamento for aprovado, o Mercado Pago traz você de volta automaticamente e liberamos sua prova.</p>
+        <h2 class="display" style="font-size:1.4rem;margin:14px 0 10px">${link ? 'Finalize o pagamento' : 'Preparando seu pagamento...'}</h2>
+        <p class="muted">${link ? 'Abrimos o pagamento em outra aba. Assim que for aprovado, você volta automaticamente e liberamos sua prova.' : 'Só um instante.'}</p>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
-          <a class="btn btn-ghost btn-block" href="${link}" target="_blank" rel="noopener">Não abriu? Clique aqui para pagar</a>
+          ${link ? `<a class="btn btn-ghost btn-block" href="${link}" target="_blank" rel="noopener">Não abriu? Clique aqui para pagar</a>` : ''}
           <button class="btn btn-ghost btn-block" id="recheck-btn">Já paguei e não voltei automaticamente</button>
         </div>
       </div>
@@ -572,7 +580,7 @@ function renderVerifyFailed(){
       <div class="card" style="padding:36px">
         <div class="eyebrow">Pagamento</div>
         <h2 class="display" style="font-size:1.4rem;margin:14px 0 10px">Não conseguimos confirmar seu pagamento</h2>
-        <p class="muted">Se você já concluiu o pagamento no Mercado Pago, aguarde alguns segundos — a confirmação pode levar um instante — e tente novamente.</p>
+        <p class="muted">Se você já concluiu o pagamento, aguarde alguns segundos — a confirmação pode levar um instante — e tente novamente.</p>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:22px">
           <button class="btn btn-primary btn-block" id="retry-verify-btn">Tentar novamente</button>
           <a class="btn btn-ghost btn-block" href="${location.pathname}">Voltar ao início</a>
@@ -584,15 +592,14 @@ function renderVerifyFailed(){
 }
 async function checkPaymentReturn(){
   const params = new URLSearchParams(location.search);
-  const paymentId = params.get('payment_id');
-  if(!paymentId) return false;
+  const sessionId = params.get('session_id');
+  if(!sessionId) return false;
   renderVerifying();
   try{
-    const res = await fetch(`/api/verify-payment?payment_id=${encodeURIComponent(paymentId)}&slug=${encodeURIComponent(CONFIG.slug)}`);
+    const res = await fetch(`/api/verify-stripe?session_id=${encodeURIComponent(sessionId)}&slug=${encodeURIComponent(CONFIG.slug)}`);
     const data = await res.json();
     if(data.ok){
-      const tier = data.external_reference.slice(CONFIG.slug.length+1);
-      applyVerifiedTier(tier);
+      applyVerifiedTier(data.tier);
       history.replaceState(null, '', location.pathname);
       go('quiz');
     } else {
