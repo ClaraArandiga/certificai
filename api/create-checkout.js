@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
 
     const data = await stripeRes.json();
     if (!stripeRes.ok) {
-      res.status(502).json({ error: 'stripe_error' });
+      res.status(502).json({ error: 'stripe_error', detail: data.error && data.error.message });
       return;
     }
 
