@@ -40,7 +40,6 @@ module.exports = async (req, res) => {
   body.append('success_url', successUrl);
   body.append('cancel_url', cancelUrl);
   body.append('locale', 'pt-BR');
-  body.append('automatic_payment_methods[enabled]', 'true');
   body.append('line_items[0][quantity]', '1');
   body.append('line_items[0][price_data][currency]', 'brl');
   body.append('line_items[0][price_data][unit_amount]', String(Math.round(amount * 100)));
