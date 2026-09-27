@@ -109,6 +109,12 @@ footer{padding:40px 0;text-align:center;color:var(--muted);font-size:.85rem}
 .highlight-box strong{text-decoration:underline;text-underline-offset:2px}
 </style>
 
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','4471509799787544');fbq('track','PageView');
+function track(n,p,o){ try{ if(window.fbq){ if(o) fbq('track',n,p,o); else fbq('track',n,p); } }catch(e){} }
+function tierValue(t){ const p=CONFIG.price; if(t==='bump') return p.base+(p.bumpAdd||(CONFIG.upsell&&CONFIG.upsell.priceAdd)||0); if(t==='downsell') return p.base+p.downsellAdd; return p.base; }
+</script>
 <div id="app"></div>
 
 <script>
@@ -395,6 +401,7 @@ function renderForm(){
     if(LEAD_WEBHOOK_URL){
       fetch(LEAD_WEBHOOK_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...state.lead, grupo: CONFIG.slug, data: new Date().toISOString()}) }).catch(()=>{});
     }
+    track('Lead');
     go('checkout');
   });
 }
@@ -446,6 +453,7 @@ function renderCheckout(){
 }
 
 async function goToPayment(tier){
+  track('InitiateCheckout',{value:tierValue(tier),currency:'BRL'});
   go('return');
   try{
     const res = await fetch(`/api/create-checkout?slug=${encodeURIComponent(CONFIG.slug)}&tier=${encodeURIComponent(tier)}`, { method:'POST' });
@@ -529,6 +537,7 @@ async function checkPaymentReturn(){
     if(data.ok){
       state.sessionId = sessionId; paidVerified = true;
       applyVerifiedTier(data.tier);
+      if(state.pixelPurchase!==sessionId){ state.pixelPurchase = sessionId; saveState(); track('Purchase',{value:tierValue(data.tier),currency:'BRL'},{eventID:sessionId}); }
       history.replaceState(null, '', location.pathname);
       go('download');
     } else {
@@ -819,7 +828,7 @@ function bindActions(){
 window.addEventListener('hashchange', render);
 async function init(){
   const handled = await checkPaymentReturn();
-  if(!handled) render();
+  if(!handled){ track('ViewContent',{content_name:CONFIG.groupLabel}); render(); }
 }
 document.addEventListener('DOMContentLoaded', init);
 init();
