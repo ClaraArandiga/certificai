@@ -263,8 +263,24 @@ function stepPills(activeStep){
   return `<div class="pill-steps">${steps.map(([k,l])=>`<span class="${k===activeStep?'active':''}">${l}</span>`).join('')}</div>`;
 }
 
+let paidVerified = false;
+async function ensurePaid(){
+  if(paidVerified) return true;
+  if(!state.sessionId) return false;
+  try{
+    const res = await fetch(`/api/verify-stripe?session_id=${encodeURIComponent(state.sessionId)}&slug=${encodeURIComponent(CONFIG.slug)}`);
+    const data = await res.json();
+    if(data.ok && data.tier===state.tier){ paidVerified = true; return true; }
+  }catch(err){}
+  return false;
+}
 function render(){
   let hash = location.hash.slice(1) || 'home';
+  if((hash==='quiz'||hash==='result'||hash==='download') && !paidVerified){
+    renderVerifying();
+    ensurePaid().then(ok=>{ if(ok) render(); else go('form'); });
+    return;
+  }
   if(hash==='form') renderForm();
   else if(hash==='checkout') renderCheckout();
   else if(hash==='return') renderReturn();
@@ -511,6 +527,7 @@ async function checkPaymentReturn(){
     const res = await fetch(`/api/verify-stripe?session_id=${encodeURIComponent(sessionId)}&slug=${encodeURIComponent(CONFIG.slug)}`);
     const data = await res.json();
     if(data.ok){
+      state.sessionId = sessionId; paidVerified = true;
       applyVerifiedTier(data.tier);
       history.replaceState(null, '', location.pathname);
       go('download');
