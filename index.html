@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1B1B1D; --paper:#FAF9F7; --surface:#FFFFFF; --line:#E6E3DD; --muted:#6B6863;
+    --ink:#141414; --paper:#FFFFFF; --surface:#FFFFFF; --line:#E2E2E2; --muted:#5C5C5C; --accent:#E4002B;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:"Work Sans",system-ui,sans-serif;line-height:1.5}
@@ -20,12 +20,12 @@
   .grid{display:grid;gap:20px;padding:16px 0 72px}
   @media(min-width:720px){.grid{grid-template-columns:repeat(3,1fr)}}
   a.card{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px;transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease}
-  a.card:hover{border-color:#93273F;transform:translateY(-2px);box-shadow:0 14px 30px -20px rgba(27,27,29,.25)}
+  a.card:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:0 14px 30px -20px rgba(27,27,29,.25)}
   .eyebrow{text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;font-weight:600;color:var(--muted)}
   .card h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:1.25rem;margin:0}
   .card p{color:var(--muted);font-size:.92rem;margin:0}
   footer{text-align:center;padding:32px 0;color:var(--muted);font-size:.85rem}
-  .promo-banner{position:sticky;top:0;z-index:30;background:#93273F;color:#FFFFFF;text-align:center;font-size:.7rem;font-weight:700;letter-spacing:.03em;padding:7px 12px}
+  .promo-banner{position:sticky;top:0;z-index:30;background:var(--accent);color:#FFFFFF;text-align:center;font-size:.7rem;font-weight:700;letter-spacing:.03em;padding:7px 12px}
 </style>
 </head>
 <body>

@@ -5,21 +5,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#1A1414; --paper:#FAF6F5; --surface:#FFFFFF; --surface-2:#FBEAE9;
-  --accent:#E4002B; --accent-ink:#FFFFFF; --line:#EDDBD9;
-  --muted:#726461; --good:#3F7A4E; --bad:#B23B3B; --star:#B8862E; --shadow:0 14px 30px -20px rgba(26,20,20,.25);
+  --ink:#141414; --paper:#FFFFFF; --surface:#FFFFFF; --surface-2:#F2F2F2;
+  --accent:#E4002B; --accent-ink:#FFFFFF; --line:#E2E2E2;
+  --muted:#5C5C5C; --good:#2E7D46; --bad:#C23B3B; --star:#141414; --shadow:0 14px 30px -20px rgba(0,0,0,.25);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ink:#F5E9E8; --paper:#1A1212; --surface:#231818; --surface-2:#2B1C1C;
-    --accent:#FF4646; --accent-ink:#1A1212; --line:#3A2626;
-    --muted:#B99E9C; --good:#7ED18F; --bad:#F0918C; --star:#E3B563; --shadow:0 14px 30px -20px rgba(0,0,0,.55);
+    --ink:#F2F2F2; --paper:#121212; --surface:#1B1B1B; --surface-2:#242424;
+    --accent:#FF4646; --accent-ink:#141414; --line:#333333;
+    --muted:#A6A6A6; --good:#7ED18F; --bad:#F0918C; --star:#F2F2F2; --shadow:0 14px 30px -20px rgba(0,0,0,.6);
   }
 }
 :root[data-theme="dark"]{
-  --ink:#F5E9E8; --paper:#1A1212; --surface:#231818; --surface-2:#2B1C1C;
-  --accent:#FF4646; --accent-ink:#1A1212; --line:#3A2626;
-  --muted:#B99E9C; --good:#7ED18F; --bad:#F0918C; --star:#E3B563; --shadow:0 14px 30px -20px rgba(0,0,0,.55);
+  --ink:#F2F2F2; --paper:#121212; --surface:#1B1B1B; --surface-2:#242424;
+  --accent:#FF4646; --accent-ink:#141414; --line:#333333;
+  --muted:#A6A6A6; --good:#7ED18F; --bad:#F0918C; --star:#F2F2F2; --shadow:0 14px 30px -20px rgba(0,0,0,.6);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:"Manrope",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -38,10 +38,10 @@ button{font:inherit;cursor:pointer}
 .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
 .btn-block{width:100%}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
-.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--accent)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:700;color:var(--ink)}
 .muted{color:var(--muted)}
 input,select{width:100%;font:inherit;padding:14px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
-input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
 .field{margin-bottom:16px}
 .site-top{position:sticky;top:0;z-index:30}
@@ -49,20 +49,20 @@ label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
 .topbar{background:#FFFFFF;border-bottom:1px solid var(--line)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .consent-row{margin-top:16px}
-.consent-row a{color:var(--accent);text-decoration:underline}
+.consent-row a{color:var(--ink);text-decoration:underline}
 .topbar-inner{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
 .brand{font-family:"Unbounded",sans-serif;font-weight:700;font-size:1.05rem}
 .brand-logo{height:38px;width:auto;display:block}
 .progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
-.progress > i{display:block;height:100%;background:var(--accent);border-radius:2px;transition:width .3s ease}
+.progress > i{display:block;height:100%;background:var(--ink);border-radius:2px;transition:width .3s ease}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:.85rem;font-weight:600}
 .grid{display:grid;gap:16px}
 @media(min-width:720px){.grid-3{grid-template-columns:repeat(3,1fr)}}
 .section{padding:72px 0}
 .hr{border:none;border-top:1px solid var(--line);margin:28px 0}
 .opt{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border:1.5px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .15s, background .15s}
-.opt:hover{border-color:var(--accent)}
-.opt.selected{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 10%, var(--surface))}
+.opt:hover{border-color:var(--ink)}
+.opt.selected{border-color:var(--ink);background:color-mix(in srgb, var(--ink) 8%, var(--surface))}
 .opt input{width:auto}
 .badge-good{background:color-mix(in srgb, var(--good) 18%, var(--surface));color:var(--good);border-radius:999px;padding:4px 12px;font-weight:700;font-size:.8rem}
 .badge-bad{background:color-mix(in srgb, var(--bad) 18%, var(--surface));color:var(--bad);border-radius:999px;padding:4px 12px;font-weight:700;font-size:.8rem}
@@ -77,12 +77,12 @@ label{font-size:.85rem;font-weight:600;display:block;margin-bottom:6px}
 .faq p{margin:10px 0 0;color:var(--muted)}
 .price-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
 .total-row{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:1.2rem;border-top:1.5px solid var(--line);padding-top:14px;margin-top:8px}
-.bump{border:3px solid var(--accent);border-radius:12px;padding:22px;margin:20px 0;background:color-mix(in srgb, var(--accent) 14%, var(--surface));box-shadow:0 0 0 6px color-mix(in srgb, var(--accent) 12%, transparent), var(--shadow)}
+.bump{border:3px solid var(--accent);border-radius:12px;padding:22px;margin:20px 0;background:var(--surface);box-shadow:0 0 0 6px color-mix(in srgb, var(--accent) 12%, transparent), var(--shadow)}
 .bump-badge{display:inline-block;background:var(--accent);color:var(--accent-ink);font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:6px 14px;border-radius:8px;margin-bottom:14px}
 .bump .opt span{font-size:1.05rem;font-weight:500}
 .pill-steps{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
 .pill-steps span{font-size:.75rem;padding:5px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-.pill-steps span.active{border-color:var(--accent);color:var(--accent);font-weight:700}
+.pill-steps span.active{border-color:var(--ink);color:var(--ink);font-weight:700}
 footer{padding:40px 0;text-align:center;color:var(--muted);font-size:.85rem}
 .urgency-banner{text-align:center;margin-bottom:20px}
 .urgency-eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.78rem;font-weight:700;color:var(--bad);margin-bottom:10px}
@@ -101,7 +101,7 @@ footer{padding:40px 0;text-align:center;color:var(--muted);font-size:.85rem}
 .review-attribution{display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:var(--muted)}
 .review-example-tag{font-size:.68rem;opacity:.75}
 .included-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
-.included-num{color:var(--accent);font-weight:700;font-size:.75rem;font-family:"JetBrains Mono",monospace}
+.included-num{color:var(--ink);font-weight:700;font-size:.75rem;font-family:"JetBrains Mono",monospace}
 .included-name{font-family:"Unbounded",sans-serif;font-weight:600;font-size:1.05rem;margin:8px 0 4px}
 .included-meta{color:var(--muted);font-size:.85rem}
 .highlight-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:22px 0 6px}
@@ -126,7 +126,7 @@ const CONFIG = {
   heroHook: 'Você já imaginou receber um certificado em minutos?',
   heroHeadline: 'PACOTE: O MESTRE DO ALGORÍTIMO',
   heroSub: 'Domine o que faz conteúdo performar: leve pra casa a apostila completa e saia certificado(a) em Social Media, Fotografia e Copywriting — tudo em um único pacote, por um preço só.',
-  price: { base: 47 },
+  price: { base: 37 },
   professions: [
     { id:'social-media', label:'Social Media', cert:'Social Media Profissional',
       quiz:[
@@ -348,7 +348,7 @@ function renderHome(){
       <div class="grid grid-3">
         ${['Preencha seus dados','Pague uma vez só, com segurança','Faça as 3 provas e desbloqueie apostila + certificados'].map((t,i)=>`
         <div>
-          <div class="mono" style="font-size:.75rem;color:var(--accent);font-weight:700">PASSO ${i+1}</div>
+          <div class="mono" style="font-size:.75rem;color:var(--ink);font-weight:700">PASSO ${i+1}</div>
           <p style="margin:6px 0 0;font-weight:500">${t}</p>
         </div>`).join('')}
       </div>

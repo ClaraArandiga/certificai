@@ -2,7 +2,7 @@ const PRICES = {
   beleza: { base: 17, bump: 44, downsell: 24 },
   gastronomia: { base: 17, bump: 44, downsell: 24 },
   imagem: { base: 17, bump: 44, downsell: 24 },
-  algoritmo: { base: 47, bump: 64 },
+  algoritmo: { base: 37, bump: 54 },
 };
 
 const LABELS = {
